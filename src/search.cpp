@@ -1241,7 +1241,7 @@ moves_loop:  // When in check, search starts here
             r += 1036 + allNode * 848;
 
         // For first picked move (ttMove) reduce reduction
-        else if (ss->isTTMove)
+        else if (ss->isTTMove || ((ss - 1)->isTTMove && moveCount < 3))
             r -= 2006;
 
         if (capture)
