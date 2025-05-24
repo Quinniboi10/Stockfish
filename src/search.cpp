@@ -1184,8 +1184,10 @@ moves_loop:  // When in check, search starts here
 
             // If we are on a cutNode but the ttMove is not assumed to fail high
             // over current beta
+            // Reduce more if the search yielded significantly higher values than
+            // the singular search's beta
             else if (cutNode)
-                extension = -2;
+                extension = -2 - (value > singularBeta + 15 * singularDepth);
         }
 
         // Step 16. Make the move
