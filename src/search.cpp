@@ -1187,7 +1187,7 @@ moves_loop:  // When in check, search starts here
             // Reduce more if the search yielded significantly higher values than
             // the singular search's beta
             else if (cutNode)
-                extension = -2 - (value > singularBeta + 15 * singularDepth);
+                extension = -2 - depth / 8 * (value > singularBeta + 5 * singularDepth);
         }
 
         // Step 16. Make the move
