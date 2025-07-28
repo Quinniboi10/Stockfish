@@ -66,6 +66,18 @@ namespace {
 constexpr int SEARCHEDLIST_CAPACITY = 32;
 using SearchedList                  = ValueList<Move, SEARCHEDLIST_CAPACITY>;
 
+constexpr std::array<int32_t, MAX_PLY> generateSEDepthTable() {
+    std::array<int32_t, MAX_PLY> arr{};
+
+    arr[0] = 0;
+    for (int depth = 1; depth < MAX_PLY; depth++)
+        arr[depth] = (1 / (1 + std::pow(2.75, -depth / 15)) - 0.25) * depth;
+
+    return arr;
+}
+
+constexpr std::array<int32_t, MAX_PLY> sExtensionSearchDepth = generateSEDepthTable();
+
 // (*Scalers):
 // The values with Scaler asterisks have proven non-linear scaling.
 // They are optimized to time controls of 180 + 1.8 and longer,
@@ -1118,7 +1130,7 @@ moves_loop:  // When in check, search starts here
             && ttData.depth >= depth - 3)
         {
             Value singularBeta  = ttData.value - (56 + 79 * (ss->ttPv && !PvNode)) * depth / 58;
-            Depth singularDepth = newDepth / 2;
+            Depth singularDepth = sExtensionSearchDepth[newDepth];
 
             ss->excludedMove = move;
             value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
