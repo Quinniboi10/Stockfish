@@ -71,7 +71,7 @@ constexpr std::array<int32_t, MAX_PLY> generateSEDepthTable() {
 
     arr[0] = 0;
     for (int depth = 1; depth < MAX_PLY; depth++)
-        arr[depth] = (1 / (1 + std::pow(2, -depth / 75))) * depth;
+        arr[depth] = (1 / (1 + std::pow(2, depth / 75))) * depth;
 
     return arr;
 }
