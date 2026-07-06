@@ -742,12 +742,13 @@ Value Search::Worker::search(
     SearchedList quietsSearched;
 
     // Step 1. Initialize node
-    ss->inCheck   = pos.checkers();
-    priorCapture  = pos.captured_piece();
-    Color us      = pos.side_to_move();
-    ss->moveCount = 0;
-    bestValue     = -VALUE_INFINITE;
-    maxValue      = VALUE_INFINITE;
+    ss->inCheck       = pos.checkers();
+    priorCapture      = pos.captured_piece();
+    Color us          = pos.side_to_move();
+    ss->moveCount     = 0;
+    ss->movesSearched = 0;
+    bestValue         = -VALUE_INFINITE;
+    maxValue          = VALUE_INFINITE;
 
     ss->followPV = rootNode
                 || ((ss - 1)->followPV
@@ -1096,7 +1097,8 @@ moves_loop:  // When in check, search starts here
 
     value = bestValue;
 
-    int moveCount = 0;
+    int moveCount     = 0;
+    int movesSearched = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1137,7 +1139,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        int r = reduction(improving, depth, moveCount, delta);
+        int r = reduction(improving, depth, (moveCount * 1024 + movesSearched * 1024) / 2048, delta);
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
@@ -1283,6 +1285,9 @@ moves_loop:  // When in check, search starts here
 
         // Step 16. Make the move
         do_move(pos, move, st, givesCheck, ss);
+
+        // If we get to here, the move will be searched
+        ss->movesSearched = ++movesSearched;
 
         // Add extension to new depth
         newDepth += extension;
