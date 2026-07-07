@@ -55,9 +55,7 @@ namespace Stockfish {
 int MC_WEIGHT = 1024;
 int MS_WEIGHT = 1024;
 
-int REDUCTION_DIV = 2048;
-
-TUNE(MC_WEIGHT, MS_WEIGHT, REDUCTION_DIV);
+TUNE(MC_WEIGHT, MS_WEIGHT);
 
 static constexpr std::array<int, 16> lmrDivisor = {3307, 2930, 2874, 2818, 3215, 3225, 3224, 2782,
                                                    2858, 2919, 3088, 3275, 3180, 2868, 3006, 3599};
@@ -1149,7 +1147,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        int r = reduction(improving, depth, (moveCount * MC_WEIGHT + movesSearched * MS_WEIGHT) / REDUCTION_DIV, delta);
+        int r = reduction(improving, depth, (moveCount * MC_WEIGHT + movesSearched * MS_WEIGHT) / 2048, delta);
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
