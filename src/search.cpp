@@ -45,11 +45,19 @@
 #include "thread.h"
 #include "timeman.h"
 #include "tt.h"
+#include "tune.h"
 #include "types.h"
 #include "uci.h"
 #include "ucioption.h"
 
 namespace Stockfish {
+
+int MC_WEIGHT = 1024;
+int MS_WEIGHT = 1024;
+
+int REDUCTION_DIV = 2048;
+
+TUNE(MC_WEIGHT, MS_WEIGHT, REDUCTION_DIV);
 
 static constexpr std::array<int, 16> lmrDivisor = {3307, 2930, 2874, 2818, 3215, 3225, 3224, 2782,
                                                    2858, 2919, 3088, 3275, 3180, 2868, 3006, 3599};
@@ -668,6 +676,8 @@ void Search::Worker::undo_move(Position& pos, const Move move) {
 
 void Search::Worker::undo_null_move(Position& pos) { pos.undo_null_move(); }
 
+int RED_BASE = 2834;
+TUNE(RED_BASE);
 
 // Reset histories, usually before a new game
 void Search::Worker::clear() {
@@ -691,7 +701,7 @@ void Search::Worker::clear() {
                     h.fill(-552);
 
     for (usize i = 1; i < reductions.size(); ++i)
-        reductions[i] = int(2834 / 128.0 * std::log(i));
+        reductions[i] = int(RED_BASE / 128.0 * std::log(i));
 
     refreshTable.clear(network[numaAccessToken]);
 }
@@ -1139,7 +1149,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        int r = reduction(improving, depth, (moveCount * 1024 + movesSearched * 1024) / 2048, delta);
+        int r = reduction(improving, depth, (moveCount * MC_WEIGHT + movesSearched * MS_WEIGHT) / REDUCTION_DIV, delta);
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
@@ -1832,9 +1842,15 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     return bestValue;
 }
 
+int a = 617;
+int b = 194;
+int c = 1027;
+
+TUNE(a, b, c);
+
 int Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
     int reductionScale = reductions[d] * reductions[mn];
-    return reductionScale - delta * 617 / rootDelta + !i * reductionScale * 194 / 512 + 1027;
+    return reductionScale - delta * a / rootDelta + !i * reductionScale * b / 512 + c;
 }
 
 // elapsed() returns the time elapsed since the search started. If the
