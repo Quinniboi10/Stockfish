@@ -691,7 +691,7 @@ void Search::Worker::clear() {
                     h.fill(-552);
 
     for (usize i = 1; i < reductions.size(); ++i)
-        reductions[i] = int(2834 / 128.0 * std::log(i));
+        reductions[i] = int(2875 / 128.0 * std::log(i));
 
     refreshTable.clear(network[numaAccessToken]);
 }
@@ -1139,7 +1139,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        int r = reduction(improving, depth, (moveCount * 1024 + movesSearched * 1024) / 2048, delta);
+        int r = reduction(improving, depth, (moveCount * 1017 + movesSearched * 1035) / 2048, delta);
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
@@ -1834,7 +1834,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
 int Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
     int reductionScale = reductions[d] * reductions[mn];
-    return reductionScale - delta * 617 / rootDelta + !i * reductionScale * 194 / 512 + 1027;
+    return reductionScale - delta * 611 / rootDelta + !i * reductionScale * 194 / 512 + 1065;
 }
 
 // elapsed() returns the time elapsed since the search started. If the
